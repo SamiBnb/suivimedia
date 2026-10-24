@@ -110,6 +110,19 @@ textarea:focus,select:focus{outline:none;border-color:var(--acc)}
 .qb.on.td{background:var(--mut);border-color:var(--mut);color:#0f0d1a}
 #det .chs{flex-wrap:wrap;overflow:visible}
 #det .ch{padding:6px 10px;font-size:14px;border-radius:10px}
+.vsw{display:grid;grid-template-columns:1fr 1fr;background:var(--sf);border:1.5px solid var(--ln);border-radius:14px;padding:3px;margin:6px 0 14px}
+.vsw button{border:0;background:none;border-radius:11px;padding:9px 4px;font-size:14px;color:var(--mut)}
+.vsw button.on{background:var(--acc);color:#fff;font-weight:700}
+.dsh{font:700 20px "Bricolage Grotesque","DM Sans",sans-serif;margin:22px 0 10px;letter-spacing:-.01em}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:12px}
+.pc{display:flex;flex-direction:column;gap:6px;min-width:0}
+.pi{position:relative;aspect-ratio:2/3;border-radius:12px;overflow:hidden;background:var(--ln);display:grid;place-items:center;font:700 34px "Bricolage Grotesque",sans-serif;color:var(--mut)}
+.pi img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pt{font-weight:700;font-size:14px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.pm{font-size:12px;color:var(--mut);min-height:16px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pa{margin-top:auto;border:0;border-radius:10px;background:var(--acc);color:#fff;font-weight:700;font-size:13px;padding:9px 6px}
+.pa:disabled{background:var(--sf);border:1.5px solid var(--ln);color:var(--done);opacity:1}
+.dmore{display:block;margin:16px auto 0}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:max-content;max-width:90vw;background:var(--sf);border:1px solid var(--ln);color:var(--ink);padding:12px 16px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:30;font-size:14px;text-align:center}
 .tools{display:flex;gap:10px;margin:12px 0 4px}
 .tools input.srch{margin:0;flex:1}
@@ -148,6 +161,7 @@ var KEY='suivi-medias-v1',S={upd:0,sm:false,sel:{},items:[],cat:'anime',open:nul
 S.sorts={};try{S.sorts=JSON.parse(localStorage.getItem('suivi-sorts'))||{}}catch(e){}
 function saveSorts(){try{localStorage.setItem('suivi-sorts',JSON.stringify(S.sorts))}catch(e){}}
 try{var raw=localStorage.getItem(KEY);if(raw){var d=JSON.parse(raw);if(d&&d.items){S.items=d.items;S.upd=d.upd||0}}}catch(e){}
+S.view='suivi';S.dq='';S.dsr=null;S.dc={};S.dcards=[];
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify({items:S.items,upd:S.upd}))}catch(e){}}
 function save(){S.upd=Date.now();saveLocal();syncSchedule()}
 var SY={st:'off',user:null,db:null,auth:null,unsub:null,t:null,dirty:false,ready:false,first:true};
@@ -261,7 +275,8 @@ function render(){
   var a=document.getElementById('app'),it=S.open&&cur(),od=document.getElementById('det'),st0=od?od.scrollTop:0;
   a.style.setProperty('--acc',C[S.cat].c);
   a.innerHTML=home()+(it?'<dialog id="det" aria-label="'+esc(it.title)+'">'+detail(it)+'</dialog>':'');
-  var dd=document.getElementById('det');if(dd){dd.showModal();dd.scrollTop=st0}}
+  var dd=document.getElementById('det');if(dd){dd.showModal();dd.scrollTop=st0}
+  if(S.view==='disc'&&S.cat!=='livres')discLoad()}
 function shownList(){var ql=S.q.toLowerCase();return sortList(S.items.filter(function(i){return i.cat===S.cat&&(S.filter==='all'||i.status===S.filter)&&(!ql||i.title.toLowerCase().indexOf(ql)>=0)}))}
 function selShown(){return shownList().filter(function(i){return S.sel[i.id]})}
 function selTxt(){var n=selShown().length;return n?n+' sélectionné'+(n>1?'s':''):'Aucun titre sélectionné'}
@@ -283,7 +298,10 @@ function home(){
   doing=all.filter(function(i){return i.status==='doing'}).length;
   var h='<nav class="tabs" role="tablist">';
   Object.keys(C).forEach(function(k){h+='<button role="tab" aria-selected="'+(k===S.cat)+'" class="tab'+(k===S.cat?' on':'')+'" data-cat="'+k+'" style="--acc:'+C[k].c+'">'+ico(k,22)+'<span>'+C[k].l+'</span></button>'});
-  h+='</nav><div class="pad"><h1>'+c.l+'</h1><p class="sum">'+doing+' en cours sur '+all.length+(all.length>1?' titres':' titre')+(all.length&&!S.sm?'<button class="lnk" data-act="selmode">Sélectionner</button>':'')+'</p><div class="flt">';
+  var dv=S.view==='disc'&&S.cat!=='livres';
+  h+='</nav><div class="pad"><h1>'+c.l+'</h1>'+vsw();
+  if(dv){h+=discPage()+'</div>'}else{
+  h+='<p class="sum">'+doing+' en cours sur '+all.length+(all.length>1?' titres':' titre')+(all.length&&!S.sm?'<button class="lnk" data-act="selmode">Sélectionner</button>':'')+'</p><div class="flt">';
   [['all','Tous'],['doing','En cours'],['todo','Pas commencé'],['done','Fini']].forEach(function(p){h+='<button class="'+(S.filter===p[0]?'on':'')+'" data-f="'+p[0]+'">'+p[1]+'</button>'});
   h+='</div>';
   h+='<div class="tools"><input id="q" class="srch" type="search" placeholder="Rechercher dans mes titres" value="'+esc(S.q)+'"><select id="srt" aria-label="Trier">';
@@ -291,8 +309,9 @@ function home(){
   h+='</select></div>';
   h+='<div id="lst">'+lst()+'</div>';
   h+='<div class="links"><button class="lnk" data-act="bulk">Ajouter une liste</button>'+(function(){var o='',nm=all.filter(function(i){return !i.total}).length,nu=all.filter(unrec).length;if((S.cat==='anime'||S.cat==='manga')&&nm)o+='<button class="lnk" id="fmb" data-act="fillmiss">Chercher les totaux manquants ('+nm+')</button>';if(nu)o+='<button class="lnk" data-act="unrec">Titres non reconnus (.txt) ('+nu+')</button>';return o})()+'<button class="lnk" data-act="exp">Exporter mes données</button><button class="lnk" data-act="imp">Importer</button><button class="lnk" data-act="key" data-k="tmdb">Clé TMDB</button><button class="lnk" data-act="key" data-k="rawg">Clé RAWG</button><button class="lnk" id="syb" data-act="sync">'+syLabel()+'</button><input type="file" id="fi" accept=".json" hidden></div></div>';
+  }
   if(S.sm)h+='<div class="selbar"><button class="btn" data-act="selcancel">Annuler</button><span class="n" id="sbn">'+selTxt()+'</span><button class="btn" data-act="selall">Tout</button><button class="btn dng" id="sbd" data-act="seldel"'+(selShown().length?'':' disabled')+'>'+(selShown().length?'Supprimer ('+selShown().length+')':'Supprimer')+'</button></div>';
-  else h+='<button class="fab" data-act="new" aria-label="Ajouter un titre">+</button>';
+  else if(!dv)h+='<button class="fab" data-act="new" aria-label="Ajouter un titre">+</button>';
   h+='<dialog id="dlg"><div class="dh">Ajouter dans '+c.l+'</div><div class="fld"><label for="nt">Titre</label><input id="nt" autocomplete="off"></div><div id="sg" class="sg"></div><div id="ne" class="hint" style="color:var(--bad);display:none"></div><div class="fld"><label for="nn">'+c.n+' (facultatif)</label><input id="nn" '+(S.cat==='films'?'placeholder="02:15"':'type="number" min="0" inputmode="numeric"')+'></div><div class="act"><button class="btn" data-act="cancel">Annuler</button><button class="btn pri" data-act="add">Ajouter</button></div></dialog>';
   h+='<dialog id="bdlg"><div class="dh">Ajouter une liste dans '+c.l+'</div><p class="hint" style="margin-top:-6px">Colle ta liste, un titre par ligne (depuis Notion par exemple). Tous seront ajoutés en « Pas commencé ».</p><div class="fld"><textarea id="bt" rows="10" placeholder="Titre 1&#10;Titre 2&#10;Titre 3"></textarea></div><div id="bc" class="hint">0 titre sera ajouté</div><div id="bp" hidden><div class="bar" style="height:8px"><i id="bpi" style="width:0"></i></div><div id="bpt" class="hint" style="margin:8px 0 0"></div></div><div class="act" id="bact"><button class="btn" data-act="cancel">Annuler</button><button class="btn pri" data-act="bulkadd">Ajouter tout</button></div></dialog>';
   return h}
@@ -434,10 +453,84 @@ function startBulk(){
     var bd=document.getElementById('bdlg');if(bd&&bd.open)bd.close();render();
     toast(add.length+' titre'+(add.length>1?'s':'')+' ajouté'+(add.length>1?'s':'')+' · '+found+' avec couverture/durée'+(add.length-found>0?' · '+(add.length-found)+' laissé'+(add.length-found>1?'s':'')+' tel quel'+(add.length-found>1?'s':'')+' (non trouvé'+(add.length-found>1?'s':'')+')':'')+(sk?' · '+sk+' doublon'+(sk>1?'s':'')+' ignoré'+(sk>1?'s':''):''))})}
 document.addEventListener('cancel',function(e){if(e.target.id==='bdlg'&&S.bulkRun)e.preventDefault()},true);
+var dtm,dseq=0;
+function vsw(){if(S.cat==='livres')return'';return '<div class="vsw"><button class="'+(S.view!=='disc'?'on':'')+'" data-view="suivi">Mon suivi</button><button class="'+(S.view==='disc'?'on':'')+'" data-view="disc">Découvrir</button></div>'}
+function curSeason(){var d=new Date(),m=d.getMonth(),k=['WINTER','WINTER','WINTER','SPRING','SPRING','SPRING','SUMMER','SUMMER','SUMMER','FALL','FALL','FALL'][m],l={WINTER:'d’hiver',SPRING:'de printemps',SUMMER:'d’été',FALL:'d’automne'}[k];return{k:k,y:d.getFullYear(),l:l}}
+function isoPlus(y){var d=new Date();d.setFullYear(d.getFullYear()+y);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function aniDisc(type,opt,page){
+  var v={p:page,t:type};if(opt.status)v.st=opt.status;if(opt.season){v.se=opt.season;v.sy=opt.year}if(type==='MANGA')v.f=['MANGA','ONE_SHOT'];
+  return ft('https://graphql.anilist.co',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({query:'query($p:Int,$t:MediaType,$st:MediaStatus,$se:MediaSeason,$sy:Int,$f:[MediaFormat]){Page(page:$p,perPage:24){pageInfo{hasNextPage}media(type:$t,status:$st,season:$se,seasonYear:$sy,format_in:$f,sort:POPULARITY_DESC,isAdult:false){title{romaji english}episodes chapters startDate{year}coverImage{large}nextAiringEpisode{episode}averageScore}}}',variables:v})},9000).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){var pg=j.data.Page;
+    return{more:!!pg.pageInfo.hasNextPage,list:pg.media.map(function(m){var tot=type==='ANIME'?(m.episodes||(m.nextAiringEpisode?m.nextAiringEpisode.episode-1:0)):(m.chapters||0),ti=m.title.romaji||m.title.english;
+      return{title:ti,alt:m.title.english&&m.title.english!==ti?m.title.english:'',year:m.startDate&&m.startDate.year||'',img:m.coverImage&&m.coverImage.large||'',total:tot,score:m.averageScore?(m.averageScore/10).toFixed(1):''}})}})}
+function tmList(kind,path,page,extra){
+  return tm(path,'&page='+page+(extra||'')).then(function(j){var tv=kind==='tv';
+    return{more:j.page<j.total_pages,list:j.results.map(function(m){var t=tv?m.name:m.title,o=tv?m.original_name:m.original_title,d=tv?m.first_air_date:m.release_date;
+      var p={title:t,alt:o&&o!==t?o:'',year:(d||'').slice(0,4),img:m.poster_path?'https://image.tmdb.org/t/p/w342'+m.poster_path:'',total:0,score:m.vote_average?m.vote_average.toFixed(1):''};
+      if(tv)p.tmtv=m.id;else{p.tmid=m.id;if(d)p.date=fd(d)}return p})}})}
+function rawgList(page,params){
+  var k=getKey('rawg');if(!k)return Promise.reject('nokey');
+  return ft('https://api.rawg.io/api/games?page_size=24&page='+page+'&key='+encodeURIComponent(k)+params,null,9000).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+    return{more:!!j.next,list:j.results.map(function(g){return{title:g.name,alt:'',year:(g.released||'').slice(0,4),date:g.released?fd(g.released):'',img:g.background_image?g.background_image.replace('/media/','/media/resize/420/-/'):'',total:g.playtime||0,rid:g.id,score:g.rating?(g.rating*2).toFixed(1):''}})}})}
+var DSEC={
+anime:function(){var sn=curSeason();return[
+  {id:'se',t:'Saison '+sn.l+' '+sn.y,f:function(p){return aniDisc('ANIME',{season:sn.k,year:sn.y},p)}},
+  {id:'air',t:'Actuellement en diffusion',f:function(p){return aniDisc('ANIME',{status:'RELEASING'},p)}},
+  {id:'pop',t:'Les plus populaires',f:function(p){return aniDisc('ANIME',{},p)}}]},
+manga:function(){return[{id:'pop',t:'Les mangas les plus populaires',f:function(p){return aniDisc('MANGA',{},p)}}]},
+series:function(){return[
+  {id:'air',t:'Actuellement en diffusion',f:function(p){return tmList('tv','/tv/on_the_air',p)}},
+  {id:'pop',t:'Les plus populaires',f:function(p){return tmList('tv','/tv/popular',p)}}]},
+films:function(){return[
+  {id:'now',t:'Actuellement au cinéma',f:function(p){return tmList('movie','/movie/now_playing',p,'&region=FR')}},
+  {id:'up',t:'Prochainement',f:function(p){return tmList('movie','/movie/upcoming',p,'&region=FR')}},
+  {id:'pop',t:'Les plus populaires',f:function(p){return tmList('movie','/movie/popular',p)}}]},
+jeux:function(){return[
+  {id:'up',t:'Prochaines sorties',f:function(p){return rawgList(p,'&ordering=-added&dates='+today()+','+isoPlus(1))}},
+  {id:'pop',t:'Les plus populaires',f:function(p){return rawgList(p,'&ordering=-added')}}]},
+livres:function(){return[]}};
+function secLoad(cat,sec){
+  var k=cat+':'+sec.id,c=S.dc[k]||(S.dc[k]={list:[],page:0,more:true,state:'load'});if(c.busy)return;
+  c.busy=true;sec.f(c.page+1).then(function(r){c.page++;var seen={};c.list.forEach(function(x){seen[nz(x.title)]=1});c.list=c.list.concat(r.list.filter(function(x){var n=nz(x.title);if(!n||seen[n])return false;seen[n]=1;return true}));c.more=r.more;c.state='ok'}).catch(function(){c.state=c.list.length?'ok':'err'}).then(function(){c.busy=false;if(S.cat===cat)refreshDisc()});
+  if(S.cat===cat)refreshDisc()}
+function discLoad(){var cat=S.cat;DSEC[cat]().forEach(function(sec){if(!S.dc[cat+':'+sec.id])secLoad(cat,sec)})}
+function refreshDisc(){var e=document.getElementById('disc');if(e)e.innerHTML=discHTML()}
+function discPage(){
+  var ph={anime:'un anime',manga:'un manga',series:'une série',films:'un film',jeux:'un jeu'}[S.cat]||'un titre';
+  return '<div class="tools"><input id="dq" class="srch" type="search" placeholder="Rechercher '+ph+' à ajouter" value="'+esc(S.dq)+'"></div><div id="disc">'+discHTML()+'</div>'}
+function discHTML(){
+  var cards=S.dcards=[],cat=S.cat;
+  function card(p){var i=cards.push(p)-1,dup=!!dupOf(cat,p.title,p.alt),mt=[p.alt,p.date||p.year,p.score?'★ '+p.score:''].filter(Boolean).join(' · ');
+    return '<div class="pc"><div class="pi">'+esc((p.title.trim()[0]||'?').toUpperCase())+(p.img?'<img src="'+esc(p.img)+'" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">':'')+'</div><div class="pt">'+esc(p.title)+'</div><div class="pm">'+esc(mt)+'</div><button class="pa" data-da="'+i+'"'+(dup?' disabled':'')+'>'+(dup?'✓ Dans mon suivi':'+ Ajouter')+'</button></div>'}
+  function grid(l){return '<div class="pg">'+l.map(card).join('')+'</div>'}
+  if(S.dsr){var r=S.dsr;
+    if(r.state==='load')return '<div class="sgm">Recherche…</div>';
+    if(r.state==='err')return '<div class="sgm">Recherche indisponible'+(r.nokey?' : clé manquante.':'.')+'</div>';
+    return '<h2 class="dsh">Résultats pour « '+esc(r.q)+' »</h2>'+(r.list.length?grid(r.list):'<div class="sgm">Aucun résultat.</div>')}
+  var h='';
+  DSEC[cat]().forEach(function(sec){var c=S.dc[cat+':'+sec.id];h+='<h2 class="dsh">'+esc(sec.t)+'</h2>';
+    if(!c||(c.state==='load'&&!c.list.length))h+='<div class="sgm">Chargement…</div>';
+    else if(c.state==='err')h+='<div class="sgm">Indisponible pour le moment. <button class="lnk" data-dretry="'+sec.id+'">Réessayer</button></div>';
+    else{h+=c.list.length?grid(c.list):'<div class="sgm">Rien à afficher.</div>';if(c.more)h+='<button class="btn dmore" data-dmore="'+sec.id+'"'+(c.busy?' disabled':'')+'>'+(c.busy?'Chargement…':'Voir plus')+'</button>'}});
+  return h}
+function discAdd(p){
+  var cat=S.cat;if(dupOf(cat,p.title,p.alt))return;
+  var it=mk(cat,p.title,String(Date.now()));it.img=p.img||'';it.alt=p.alt||'';
+  if(cat==='jeux'){it.hrs=p.total||0;it.total=100}else if(cat!=='series')it.total=p.total||0;
+  S.items.unshift(it);save();
+  var fin=function(){save()};
+  if(cat==='series'){
+    if(p.tvid)fetch('https://api.tvmaze.com/shows/'+p.tvid+'/episodes').then(function(r){return r.json()}).then(function(e){if(e.length){var m={};e.forEach(function(x){m[x.season]=(m[x.season]||0)+1});it.ss=Object.keys(m).sort(function(a,b){return a-b}).map(function(k){return{total:m[k],done:[]}});syncT(it);fin()}}).catch(function(){});
+    else if(p.tmtv)tm('/tv/'+p.tmtv).then(function(j){var ss=(j.seasons||[]).filter(function(x){return x.season_number>0&&x.episode_count>0}).map(function(x){return{total:x.episode_count,done:[]}});if(ss.length){it.ss=ss;syncT(it);fin()}}).catch(function(){})}
+  else if(cat==='films'){if(p.tmid)tm('/movie/'+p.tmid).then(function(m){if(m.runtime){it.total=m.runtime;fin()}}).catch(function(){})}
+  else if(cat==='jeux'){if(p.rid)ft('https://api.rawg.io/api/games/'+p.rid+'?key='+encodeURIComponent(getKey('rawg'))).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(m){if(m.playtime){it.hrs=m.playtime;fin()}}).catch(function(){})}
+  else if(!it.total)totFb(cat,p).then(function(n){if(n){it.total=n;fin()}}).catch(function(){})}
 var tmr,seq=0;
 document.addEventListener('input',function(e){
   if(e.target.id==='q'){S.q=e.target.value;document.getElementById('lst').innerHTML=lst();refreshSel();return}
   if(e.target.id==='bt'){updBc();return}
+  if(e.target.id==='dq'){S.dq=e.target.value;clearTimeout(dtm);var dqv=S.dq.trim();if(dqv.length<2){dseq++;S.dsr=null;refreshDisc();return}
+    dtm=setTimeout(function(){var my=++dseq,cat=S.cat;S.dsr={q:dqv,state:'load'};refreshDisc();
+      SRC[cat](dqv).then(function(r){if(my===dseq){S.dsr={q:dqv,state:'ok',list:r};refreshDisc()}}).catch(function(er){if(my===dseq){S.dsr={q:dqv,state:'err',nokey:er==='nokey'};refreshDisc()}})},350);return}
   if(e.target.id!=='nt')return;S.pick=null;var ne0=document.getElementById('ne');if(ne0)ne0.style.display='none';clearTimeout(tmr);
   var q=e.target.value.trim(),sg=document.getElementById('sg');
   if(q.length<2){sg.className='sg';return}
@@ -447,15 +540,19 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&(e.target.id
 document.addEventListener('close',function(e){if(e.target.id==='det'&&S.open){S.open=null;S.bk=false;render()}},true);
 document.addEventListener('click',function(e){
   if(e.target.id==='det'){S.open=null;S.bk=false;return render()}
-  var t=e.target.closest('[data-cat],[data-f],[data-open],[data-act],[data-qd],[data-qt],[data-fav],[data-cp],[data-sel],[data-n],[data-plus],[data-st],[data-sg],[data-ssn]');if(!t)return;
+  var t=e.target.closest('[data-cat],[data-f],[data-open],[data-act],[data-view],[data-da],[data-dmore],[data-dretry],[data-qd],[data-qt],[data-fav],[data-cp],[data-sel],[data-n],[data-plus],[data-st],[data-sg],[data-ssn]');if(!t)return;
   var it=cur(),ds=t.dataset;
   if(ds.sel){if(S.sel[ds.sel])delete S.sel[ds.sel];else S.sel[ds.sel]=1;var y3=window.scrollY;render();window.scrollTo(0,y3);return}
+  if(ds.view){S.view=ds.view;window.scrollTo(0,0);return render()}
+  if(ds.da!==undefined){var dp0=S.dcards[+ds.da];if(dp0){discAdd(dp0);refreshDisc();toast('« '+dp0.title+' » ajouté à ton suivi')}return}
+  if(ds.dmore){var sc=DSEC[S.cat]().filter(function(x){return x.id===ds.dmore})[0];if(sc)secLoad(S.cat,sc);return}
+  if(ds.dretry){delete S.dc[S.cat+':'+ds.dretry];discLoad();refreshDisc();return}
   if(ds.qd||ds.qt){var qi=S.items.find(function(x){return x.id===(ds.qd||ds.qt)});if(qi&&qi.status!==(ds.qd?'done':'todo')){var y6=window.scrollY;setStatus(qi,ds.qd?'done':'todo');window.scrollTo(0,y6)}return}
   if(ds.fav){var fi=S.items.find(function(x){return x.id===ds.fav});if(fi){fi.fav=!fi.fav;save();var y5=window.scrollY;render();window.scrollTo(0,y5)}return}
   if(ds.cp){var cq=S.items.find(function(x){return x.id===ds.cp});if(cq)copyTxt(cq.title);return}
   if(ds.sg!==undefined)return pickSg(+ds.sg);
   if(ds.ssn!==undefined){S.sn=+ds.ssn;return render()}
-  if(ds.cat){S.cat=ds.cat;S.filter='all';S.q='';selMode(false);return render()}
+  if(ds.cat){S.cat=ds.cat;S.filter='all';S.q='';S.dq='';S.dsr=null;selMode(false);return render()}
   if(ds.f){S.filter=ds.f;return render()}
   if(ds.plus){var p=S.items.find(function(x){return x.id===ds.plus});if(p){var tg=p;if(p.cat==='series')tg=p.ss.filter(function(x){return x.done.length<x.total})[0]||p.ss[p.ss.length-1];var n=1;while(tg.done.indexOf(n)>=0)n++;if(!tg.total||n<=tg.total){tg.done.push(n);auto(p);save();var y=window.scrollY;render();window.scrollTo(0,y)}}return}
   if(ds.open){S.open=ds.open;S.sn=0;var oi=cur();S.bk=!!(oi&&oi.status==='todo');return render()}
