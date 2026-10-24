@@ -298,9 +298,8 @@ function home(){
   return h}
 function detail(it){
   var c=it.cat,cv=cvOf(it),st=it.status,ed=true,ep=(c==='anime'||c==='manga'||c==='series'),d='';
-  var h='<div class="dm"><div class="dtop"><h2>'+esc(it.title)+'</h2><button class="x" data-act="back" aria-label="Fermer">✕</button></div><div class="dg"><div class="dl"><div class="seg">';
-  Object.keys(ST).forEach(function(k){h+='<button class="'+(st===k?'on':'')+'" data-st="'+k+'">'+ST[k]+'</button>'});
-  h+='</div>'+(st==='todo'?'<p class="hint">Indique où tu en es : le titre passera « En cours ».</p>':st==='done'?'<p class="hint">Titre terminé. Modifier la progression le repassera « En cours ».</p>':S.bk?'<p class="hint">Indique où tu en es, tu reviendras ensuite à la liste.</p>':'');
+  var h='<div class="dm"><div class="dtop"><h2>'+esc(it.title)+'</h2><button class="x" data-act="back" aria-label="Fermer">✕</button></div><div class="dg"><div class="dl"><div class="meta" style="margin:-6px 0 14px"><span class="st '+st+'">'+ST[st]+'</span></div>';
+  h+=(st==='todo'?'<p class="hint">Indique où tu en es : le titre passera « En cours ».</p>':st==='done'?'<p class="hint">Titre terminé. Modifier la progression le repassera « En cours ».</p>':S.bk?'<p class="hint">Indique où tu en es, tu reviendras ensuite à la liste.</p>':'');
   h+='<div class="big"><div class="num">'+label(it).replace(/ ([^\d\s—:\/]+)$/,'<small>$1</small>')+'</div><div class="bar" style="height:8px;margin-top:12px"><i style="width:'+Math.round(prog(it)*100)+'%"></i></div>';
   if(c==='films')h+='<div class="row"><div class="fld"><label for="seen">Temps regardé (HH:MM)</label><input id="seen" value="'+fmt(it.seen)+'"'+d+'></div><button class="btn pri" data-act="seen"'+d+'>Enregistrer</button></div>';
   else if(c==='jeux')h+='<div class="row"><div class="fld"><label for="pc">Avancement (%)</label><input id="pc" type="number" min="0" max="100" inputmode="numeric" value="'+(it.pct||0)+'"'+d+'></div><button class="btn pri" data-act="pct"'+d+'>Enregistrer</button></div>';
