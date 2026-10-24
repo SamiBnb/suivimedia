@@ -104,6 +104,12 @@ textarea:focus,select:focus{outline:none;border-color:var(--acc)}
 .fv{flex:none;width:34px;height:34px;margin-left:-6px;border:0;background:none;color:var(--mut);display:grid;place-items:center;padding:0;border-radius:10px}
 .fv:hover{background:var(--ln)}.fv.on{color:#f5b942}
 .sep{grid-column:1/-1;height:2px;border-radius:2px;background:var(--ln);margin:8px 0}
+.qs{flex:none;display:flex;flex-direction:column;gap:3px}
+.qb{border:1.5px solid var(--ln);background:var(--bg);color:var(--mut);border-radius:8px;height:22px;min-width:52px;padding:0 6px;font-size:11px;font-weight:700;line-height:1;white-space:nowrap}
+.qb.on.dn{background:var(--done);border-color:var(--done);color:#0f0d1a}
+.qb.on.td{background:var(--mut);border-color:var(--mut);color:#0f0d1a}
+#det .chs{flex-wrap:wrap;overflow:visible}
+#det .ch{padding:6px 10px;font-size:14px;border-radius:10px}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:max-content;max-width:90vw;background:var(--sf);border:1px solid var(--ln);color:var(--ink);padding:12px 16px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:30;font-size:14px;text-align:center}
 .tools{display:flex;gap:10px;margin:12px 0 4px}
 .tools input.srch{margin:0;flex:1}
@@ -198,7 +204,7 @@ function count(it){var c=it.cat;return c==='films'?it.seen:c==='livres'?it.page:
 function syncT(it){it.total=it.ss.reduce(function(a,x){return a+x.total},0)}
 function mig(){S.items.forEach(function(it){if(it.cat==='series'&&!it.ss)it.ss=[{total:it.total||0,done:it.done||[]}]})}
 function cvOf(it){if(it.cat!=='series')return it;S.sn=Math.max(0,Math.min(S.sn,it.ss.length-1));return it.ss[S.sn]}
-function chips(it){var h='<div class="chs">';it.ss.forEach(function(x,i){h+='<button class="ch'+(i===S.sn?' on':'')+'" data-ssn="'+i+'">Saison '+(i+1)+' <small>'+x.done.length+'/'+(x.total||'?')+'</small></button>'});return h+'<button class="ch" data-act="addseason"'+(it.status==='doing'?'':' disabled')+'>+ Saison</button></div>'}
+function chips(it){var h='<div class="chs">';it.ss.forEach(function(x,i){h+='<button class="ch'+(i===S.sn?' on':'')+'" data-ssn="'+i+'">S'+(i+1)+' <small>'+x.done.length+'/'+(x.total||'?')+'</small></button>'});return h+'<button class="ch" data-act="addseason">+ Saison</button></div>'}
 function prog(it){var t=it.total;if(!t)return it.status==='done'?1:0;return Math.min(1,count(it)/t)}
 function today(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function fd(s){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||'');return m?m[3]+'/'+m[2]+'/'+m[1]:''}
@@ -233,7 +239,7 @@ function fmtT(s){s=Math.max(5,Math.round(s/5)*5);return s<60?s+' s':Math.floor(s
 function updBc(){var r=parseList(document.getElementById('bt').value),n=r.list.length;
   document.getElementById('bc').textContent=n+(n>1?' titres seront ajoutés':' titre sera ajouté')+(n?' · recherche des couvertures et durées ≈ '+fmtT(n*PER[S.cat]/3):'')+(r.dup?' ('+r.dup+' déjà présent'+(r.dup>1?'s':'')+' ou en double, ignoré'+(r.dup>1?'s':'')+')':'')}
 function mk(cat,ti,id){return{id:id,cat:cat,title:ti,total:cat==='jeux'?100:0,img:'',done:[],page:0,seen:0,pct:0,hrs:0,ss:cat==='series'?[{total:0,done:[]}]:null,status:'todo',start:'',end:''}}
-function auto(it){var c=count(it);if(it.total&&c>=it.total){it.status='done';if(!it.end)it.end=today()}else if(c>0){it.status='doing';it.end='';if(!it.start)it.start=today()}}
+function auto(it){var c=count(it);if(it.total&&c>=it.total){it.status='done';if(!it.end)it.end=today()}else if(c>0){it.status='doing';it.end='';if(!it.start)it.start=today()}else if(it.status==='done'){it.status='todo';it.start='';it.end=''}}
 function fill(it){if(it.cat==='jeux'){it.pct=100;return}var t=it.total;if(!t)return;if(it.cat==='films')it.seen=t;else if(it.cat==='livres')it.page=t;else if(it.cat==='series')it.ss.forEach(function(x){x.done=[];for(var i=1;i<=x.total;i++)x.done.push(i)});else{it.done=[];for(var i=1;i<=t;i++)it.done.push(i)}}
 function clr(it){it.done=[];it.page=0;it.seen=0;it.pct=0;if(it.ss)it.ss.forEach(function(x){x.done=[]})}
 function setStatus(it,k){
@@ -269,7 +275,7 @@ function lst(){
   h+='<div class="list">';shown.forEach(function(it,ix){
     if(nf&&ix===nf)h+='<div class="sep"></div>';
     var ep=it.cat==='anime'||it.cat==='manga'||it.cat==='series';
-    h+='<div class="it'+(S.sm&&S.sel[it.id]?' sel':'')+'" '+(S.sm?'data-sel':'data-open')+'="'+it.id+'">'+(S.sm?'':'<button class="fv'+(it.fav?' on':'')+'" data-fav="'+it.id+'" aria-pressed="'+!!it.fav+'" aria-label="'+(it.fav?'Retirer des favoris':'Mettre en favori')+'" title="Favori">'+ico('star',20).replace('fill="none"',it.fav?'fill="currentColor"':'fill="none"')+'</button>')+'<div class="ini'+(it.img?' im':'')+'">'+esc((it.title.trim()[0]||'?').toUpperCase())+(it.img?'<img src="'+esc(it.img)+'" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">':'')+'</div><div class="mid"><div class="nm">'+esc(it.title)+'</div><div class="meta"><span class="st '+it.status+'">'+ST[it.status]+'</span> &nbsp;'+label(it)+'</div>'+dline(it)+'<div class="bar"><i style="width:'+Math.round(prog(it)*100)+'%"></i></div></div>'+(S.sm?'<span class="ck">'+(S.sel[it.id]?'✓':'')+'</span>':'<button class="cp" data-cp="'+it.id+'" aria-label="Copier le titre" title="Copier le titre">'+ico('copy',18)+'</button>'+(ep&&it.status!=='done'?'<button class="plus" data-plus="'+it.id+'" aria-label="Marquer le prochain épisode vu">+1</button>':'<span class="chev">›</span>'))+'</div>'});
+    h+='<div class="it'+(S.sm&&S.sel[it.id]?' sel':'')+'" '+(S.sm?'data-sel':'data-open')+'="'+it.id+'">'+(S.sm?'':'<button class="fv'+(it.fav?' on':'')+'" data-fav="'+it.id+'" aria-pressed="'+!!it.fav+'" aria-label="'+(it.fav?'Retirer des favoris':'Mettre en favori')+'" title="Favori">'+ico('star',20).replace('fill="none"',it.fav?'fill="currentColor"':'fill="none"')+'</button><span class="qs"><button class="qb dn'+(it.status==='done'?' on':'')+'" data-qd="'+it.id+'" title="Marquer comme fini" aria-label="Marquer comme fini">Fini</button><button class="qb td'+(it.status==='todo'?' on':'')+'" data-qt="'+it.id+'" title="Marquer comme pas commencé" aria-label="Marquer comme pas commencé">Pas c.</button></span>')+'<div class="ini'+(it.img?' im':'')+'">'+esc((it.title.trim()[0]||'?').toUpperCase())+(it.img?'<img src="'+esc(it.img)+'" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">':'')+'</div><div class="mid"><div class="nm">'+esc(it.title)+'</div><div class="meta"><span class="st '+it.status+'">'+ST[it.status]+'</span> &nbsp;'+label(it)+'</div>'+dline(it)+'<div class="bar"><i style="width:'+Math.round(prog(it)*100)+'%"></i></div></div>'+(S.sm?'<span class="ck">'+(S.sel[it.id]?'✓':'')+'</span>':'<button class="cp" data-cp="'+it.id+'" aria-label="Copier le titre" title="Copier le titre">'+ico('copy',18)+'</button>'+(ep&&it.status!=='done'?'<button class="plus" data-plus="'+it.id+'" aria-label="Marquer le prochain épisode vu">+1</button>':'<span class="chev">›</span>'))+'</div>'});
   h+='</div>';return h}
 function home(){
   var c=C[S.cat],all=S.items.filter(function(i){return i.cat===S.cat}),
@@ -291,10 +297,10 @@ function home(){
   h+='<dialog id="bdlg"><div class="dh">Ajouter une liste dans '+c.l+'</div><p class="hint" style="margin-top:-6px">Colle ta liste, un titre par ligne (depuis Notion par exemple). Tous seront ajoutés en « Pas commencé ».</p><div class="fld"><textarea id="bt" rows="10" placeholder="Titre 1&#10;Titre 2&#10;Titre 3"></textarea></div><div id="bc" class="hint">0 titre sera ajouté</div><div id="bp" hidden><div class="bar" style="height:8px"><i id="bpi" style="width:0"></i></div><div id="bpt" class="hint" style="margin:8px 0 0"></div></div><div class="act" id="bact"><button class="btn" data-act="cancel">Annuler</button><button class="btn pri" data-act="bulkadd">Ajouter tout</button></div></dialog>';
   return h}
 function detail(it){
-  var c=it.cat,cv=cvOf(it),st=it.status,ed=st==='doing',ep=(c==='anime'||c==='manga'||c==='series'),d=ed?'':' disabled';
+  var c=it.cat,cv=cvOf(it),st=it.status,ed=true,ep=(c==='anime'||c==='manga'||c==='series'),d='';
   var h='<div class="dm"><div class="dtop"><h2>'+esc(it.title)+'</h2><button class="x" data-act="back" aria-label="Fermer">✕</button></div><div class="dg"><div class="dl"><div class="seg">';
   Object.keys(ST).forEach(function(k){h+='<button class="'+(st===k?'on':'')+'" data-st="'+k+'">'+ST[k]+'</button>'});
-  h+='</div>'+(st==='todo'?'<p class="hint">Passe le titre en cours pour enregistrer ta progression.</p>':st==='done'?'<p class="hint">Titre terminé : tout est enregistré comme fait.</p>':S.bk?'<p class="hint">Indique où tu en es, tu reviendras ensuite à la liste.</p>':'');
+  h+='</div>'+(st==='todo'?'<p class="hint">Indique où tu en es : le titre passera « En cours ».</p>':st==='done'?'<p class="hint">Titre terminé. Modifier la progression le repassera « En cours ».</p>':S.bk?'<p class="hint">Indique où tu en es, tu reviendras ensuite à la liste.</p>':'');
   h+='<div class="big"><div class="num">'+label(it).replace(/ ([^\d\s—:\/]+)$/,'<small>$1</small>')+'</div><div class="bar" style="height:8px;margin-top:12px"><i style="width:'+Math.round(prog(it)*100)+'%"></i></div>';
   if(c==='films')h+='<div class="row"><div class="fld"><label for="seen">Temps regardé (HH:MM)</label><input id="seen" value="'+fmt(it.seen)+'"'+d+'></div><button class="btn pri" data-act="seen"'+d+'>Enregistrer</button></div>';
   else if(c==='jeux')h+='<div class="row"><div class="fld"><label for="pc">Avancement (%)</label><input id="pc" type="number" min="0" max="100" inputmode="numeric" value="'+(it.pct||0)+'"'+d+'></div><button class="btn pri" data-act="pct"'+d+'>Enregistrer</button></div>';
@@ -442,9 +448,10 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&(e.target.id
 document.addEventListener('close',function(e){if(e.target.id==='det'&&S.open){S.open=null;S.bk=false;render()}},true);
 document.addEventListener('click',function(e){
   if(e.target.id==='det'){S.open=null;S.bk=false;return render()}
-  var t=e.target.closest('[data-cat],[data-f],[data-open],[data-act],[data-fav],[data-cp],[data-sel],[data-n],[data-plus],[data-st],[data-sg],[data-ssn]');if(!t)return;
+  var t=e.target.closest('[data-cat],[data-f],[data-open],[data-act],[data-qd],[data-qt],[data-fav],[data-cp],[data-sel],[data-n],[data-plus],[data-st],[data-sg],[data-ssn]');if(!t)return;
   var it=cur(),ds=t.dataset;
   if(ds.sel){if(S.sel[ds.sel])delete S.sel[ds.sel];else S.sel[ds.sel]=1;var y3=window.scrollY;render();window.scrollTo(0,y3);return}
+  if(ds.qd||ds.qt){var qi=S.items.find(function(x){return x.id===(ds.qd||ds.qt)});if(qi&&qi.status!==(ds.qd?'done':'todo')){var y6=window.scrollY;setStatus(qi,ds.qd?'done':'todo');window.scrollTo(0,y6)}return}
   if(ds.fav){var fi=S.items.find(function(x){return x.id===ds.fav});if(fi){fi.fav=!fi.fav;save();var y5=window.scrollY;render();window.scrollTo(0,y5)}return}
   if(ds.cp){var cq=S.items.find(function(x){return x.id===ds.cp});if(cq)copyTxt(cq.title);return}
   if(ds.sg!==undefined)return pickSg(+ds.sg);
@@ -452,10 +459,10 @@ document.addEventListener('click',function(e){
   if(ds.cat){S.cat=ds.cat;S.filter='all';S.q='';selMode(false);return render()}
   if(ds.f){S.filter=ds.f;return render()}
   if(ds.plus){var p=S.items.find(function(x){return x.id===ds.plus});if(p){var tg=p;if(p.cat==='series')tg=p.ss.filter(function(x){return x.done.length<x.total})[0]||p.ss[p.ss.length-1];var n=1;while(tg.done.indexOf(n)>=0)n++;if(!tg.total||n<=tg.total){tg.done.push(n);auto(p);save();var y=window.scrollY;render();window.scrollTo(0,y)}}return}
-  if(ds.open){S.open=ds.open;S.sn=0;S.bk=false;return render()}
+  if(ds.open){S.open=ds.open;S.sn=0;var oi=cur();S.bk=!!(oi&&oi.status==='todo');return render()}
   if(ds.st&&it)return setStatus(it,ds.st);
-  if(ds.n&&it){if(it.status!=='doing')return;
-    if(S.bk){var cb=cvOf(it),n3=+ds.n;cb.done=[];for(var q3=1;q3<=n3;q3++)cb.done.push(q3);auto(it);save();S.bk=false;S.open=null;return render()}var cv=cvOf(it),n2=+ds.n,i=cv.done.indexOf(n2);if(i<0)cv.done.push(n2);else cv.done.splice(i,1);auto(it);save();var y2=window.scrollY;render();window.scrollTo(0,y2);return}
+  if(ds.n&&it){
+    if(S.bk){var cb=cvOf(it),n3=+ds.n;cb.done=[];for(var q3=1;q3<=n3;q3++)cb.done.push(q3);if(it.cat==='series')it.ss.forEach(function(x,k){if(k<S.sn){x.done=[];for(var e3=1;e3<=x.total;e3++)x.done.push(e3)}else if(k>S.sn)x.done=[]});auto(it);save();S.bk=false;S.open=null;return render()}var cv=cvOf(it),n2=+ds.n,i=cv.done.indexOf(n2);if(i<0)cv.done.push(n2);else cv.done.splice(i,1);auto(it);save();var y2=window.scrollY;render();window.scrollTo(0,y2);return}
   var a=ds.act;
   if(a==='new'){S.pick=null;S.res=[];var dl=document.getElementById('dlg');dl.showModal();document.getElementById('nt').focus();return}
   if(a==='sync')return syncClick();
@@ -475,7 +482,6 @@ document.addEventListener('click',function(e){
   if(a==='imp')return document.getElementById('fi').click();
   if(a==='key')return askKey(ds.k||(S.cat==='films'?'tmdb':'rawg'));
   if(!it)return;
-  if(a!=='del'&&it.status!=='doing')return;
   if(a==='del'){if(confirm('Supprimer « '+it.title+' » ?')){S.items=S.items.filter(function(x){return x!==it});S.open=null;save();render()}return}
   if(a==='addseason'){it.ss.push({total:0,done:[]});S.sn=it.ss.length-1;syncT(it);save();return render()}
   if(a==='pct'){it.pct=Math.max(0,Math.min(100,parseInt(document.getElementById('pc').value)||0))}
