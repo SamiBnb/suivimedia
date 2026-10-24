@@ -4,19 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mon suivi</title>
+<meta name="theme-color" content="#0f0d1a">
+<meta name="application-name" content="Mon suivi">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mon suivi">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap">
 <style>
 :root{--bg:#0f0d1a;--sf:#1a1730;--ink:#efeefa;--mut:#9a97b5;--ln:#2a2644;--doing:#f0a23a;--done:#3cc585;--bad:#ff6b6b;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 html,body{margin:0;background:var(--bg)}
+html{-webkit-text-size-adjust:100%}
+button,.it,.pc{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{overscroll-behavior-y:none}
 body{color:var(--ink);font:16px/1.45 "DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
 button{font:inherit;color:inherit;cursor:pointer}
 input{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--ln);border-radius:12px;padding:11px 13px;min-width:0;width:100%}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 input:focus{outline:none;border-color:var(--acc)}
-#app{--acc:#e0356b;min-height:100vh;padding-bottom:110px}
+#app{--acc:#e0356b;min-height:100vh;min-height:100dvh;padding-bottom:110px}
 .tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:11;display:grid;grid-template-columns:repeat(6,1fr);background:var(--bg);border-bottom:1px solid var(--ln)}
 .tab{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 2px 11px;background:none;border:0;color:var(--mut);font-size:12.5px;font-weight:500}
 .tab::after{content:"";position:absolute;left:18%;right:18%;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--acc);transform:scaleX(0);transition:transform .2s}
@@ -27,11 +39,11 @@ h1{font:700 32px/1.1 "Bricolage Grotesque","DM Sans",system-ui,sans-serif;margin
 .flt{display:flex;gap:18px;margin-bottom:6px;overflow-x:auto;border-bottom:1px solid var(--ln)}
 .flt button{background:none;border:0;border-bottom:2px solid transparent;padding:8px 0;color:var(--mut);font-size:14px;white-space:nowrap}
 .flt button.on{color:var(--ink);font-weight:700;border-color:var(--ink)}
-.it{display:flex;align-items:center;gap:13px;padding:14px;background:var(--sf);border:1px solid var(--ln);border-radius:16px;cursor:pointer}
+.it{display:flex;align-items:center;gap:10px;padding:12px;background:var(--sf);border:1px solid var(--ln);border-radius:16px;cursor:pointer}
 .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:12px;margin-top:14px}
 .ini{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font:700 20px "Bricolage Grotesque",sans-serif;color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--sf))}
 .mid{flex:1;min-width:0}
-.nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nm{font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere;line-height:1.25}
 .meta{font-size:13px;color:var(--mut);margin-top:1px}
 .st::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--mut)}
 .st.doing{color:var(--doing)}.st.doing::before{background:var(--doing)}
@@ -39,10 +51,10 @@ h1{font:700 32px/1.1 "Bricolage Grotesque","DM Sans",system-ui,sans-serif;margin
 .bar{height:5px;background:var(--ln);border-radius:9px;overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;background:var(--acc);border-radius:9px}
 .plus{flex:none;min-width:44px;height:44px;border-radius:22px;border:0;background:var(--acc);color:#fff;font-weight:700}
-.chev{flex:none;color:var(--mut);font-size:26px;padding:0 6px}
+.chev{flex:none;color:var(--mut);font-size:26px;line-height:44px;height:44px;padding:0 6px}
 .empty{padding:56px 10px;text-align:center;color:var(--mut)}.empty b{display:block;color:var(--ink);font-size:18px;margin-bottom:4px}
 .fab{position:fixed;right:20px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:60px;height:60px;border-radius:20px;border:0;background:var(--acc);color:#fff;font-size:34px;line-height:1;box-shadow:0 8px 22px color-mix(in srgb,var(--acc) 45%,transparent);z-index:12}
-.links{display:flex;gap:18px;padding:26px 0 0}
+.links{display:flex;flex-wrap:wrap;gap:12px 18px;padding:26px 0 0}
 .lnk{background:none;border:0;padding:0;color:var(--mut);font-size:13px;text-decoration:underline}
 .lnk.bad{color:var(--bad)}
 dialog{border:0;border-radius:22px;padding:22px;width:min(440px,92vw);background:var(--sf);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
@@ -76,7 +88,7 @@ dialog::backdrop{background:rgba(10,8,20,.55)}
 input:disabled,button:disabled{opacity:.45;cursor:default}
 .grid.lock button{pointer-events:none;cursor:default}
 .hint{color:var(--mut);font-size:13px;margin:-6px 0 14px}
-dialog#det{padding:0;width:min(560px,94vw);max-height:88vh;overflow-y:auto;overscroll-behavior:contain}
+dialog#det{padding:0;width:min(560px,94vw);max-height:88vh;max-height:88dvh;overflow-y:auto;overscroll-behavior:contain}
 dialog#det[open]{animation:pop .18s ease-out}
 @keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
 .dm{padding:22px}
@@ -92,7 +104,7 @@ input.srch{margin:12px 0 4px}
 textarea,select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--ln);border-radius:12px;padding:11px 13px;min-width:0;width:100%}
 textarea{resize:vertical;line-height:1.5}
 textarea:focus,select:focus{outline:none;border-color:var(--acc)}
-.cp{flex:none;width:36px;height:36px;border-radius:10px;border:0;background:none;color:var(--mut);display:grid;place-items:center;padding:0}
+.cp{flex:none;width:34px;height:28px;border-radius:10px;border:0;background:none;color:var(--mut);display:grid;place-items:center;padding:0}
 .cp:hover{color:var(--ink);background:var(--ln)}
 .it.sel{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,var(--sf))}
 .ck{flex:none;width:28px;height:28px;border-radius:9px;border:2px solid var(--ln);display:grid;place-items:center;color:#fff;font-weight:700;font-size:16px;margin:0 4px}
@@ -101,11 +113,12 @@ textarea:focus,select:focus{outline:none;border-color:var(--acc)}
 .selbar .n{flex:1;font-weight:700;min-width:0}
 .btn.dng{background:var(--bad);border-color:var(--bad);color:#fff;font-weight:700}
 .sum .lnk{float:right;font-size:14px;color:var(--acc);text-decoration:none;font-weight:700}
-.fv{flex:none;width:34px;height:34px;margin-left:-6px;border:0;background:none;color:var(--mut);display:grid;place-items:center;padding:0;border-radius:10px}
+.lf,.rt{flex:none;display:flex;flex-direction:column;align-items:center;gap:3px}
+.fv{flex:none;width:34px;height:28px;margin:0;border:0;background:none;color:var(--mut);display:grid;place-items:center;padding:0;border-radius:10px}
 .fv:hover{background:var(--ln)}.fv.on{color:#f5b942}
 .sep{grid-column:1/-1;height:2px;border-radius:2px;background:var(--ln);margin:8px 0}
 .qs{flex:none;display:flex;flex-direction:column;gap:3px}
-.qb{border:1.5px solid var(--ln);background:var(--bg);color:var(--mut);border-radius:8px;height:22px;min-width:52px;padding:0 6px;font-size:11px;font-weight:700;line-height:1;white-space:nowrap}
+.qb{border:1.5px solid var(--ln);background:var(--bg);color:var(--mut);border-radius:8px;height:24px;min-width:48px;padding:0 5px;font-size:10.5px;font-weight:700;line-height:1;white-space:nowrap}
 .qb.on.dn{background:var(--done);border-color:var(--done);color:#0f0d1a}
 .qb.on.td{background:var(--mut);border-color:var(--mut);color:#0f0d1a}
 #det .chs{flex-wrap:wrap;overflow:visible}
@@ -114,7 +127,7 @@ textarea:focus,select:focus{outline:none;border-color:var(--acc)}
 .vsw button{border:0;background:none;border-radius:11px;padding:9px 4px;font-size:14px;color:var(--mut)}
 .vsw button.on{background:var(--acc);color:#fff;font-weight:700}
 .dsh{font:700 20px "Bricolage Grotesque","DM Sans",sans-serif;margin:22px 0 10px;letter-spacing:-.01em}
-.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:12px}
+.pg{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:10px}
 .pc{display:flex;flex-direction:column;gap:6px;min-width:0}
 .pi{position:relative;aspect-ratio:2/3;border-radius:12px;overflow:hidden;background:var(--ln);display:grid;place-items:center;font:700 34px "Bricolage Grotesque",sans-serif;color:var(--mut)}
 .pi img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -123,6 +136,8 @@ textarea:focus,select:focus{outline:none;border-color:var(--acc)}
 .pa{margin-top:auto;border:0;border-radius:10px;background:var(--acc);color:#fff;font-weight:700;font-size:13px;padding:9px 6px}
 .pa:disabled{background:var(--sf);border:1.5px solid var(--ln);color:var(--done);opacity:1}
 .dmore{display:block;margin:16px auto 0}
+.gch{margin-bottom:6px}.gch .ch{padding:6px 12px;font-size:14px}
+@media(max-width:480px){.dm{padding:18px}.dtop h2{font-size:22px}h1{font-size:28px}.selbar{gap:8px}.selbar .btn{padding:9px 11px}.selbar .n{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}dialog{padding:18px}}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:max-content;max-width:90vw;background:var(--sf);border:1px solid var(--ln);color:var(--ink);padding:12px 16px;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);z-index:30;font-size:14px;text-align:center}
 .tools{display:flex;gap:10px;margin:12px 0 4px}
 .tools input.srch{margin:0;flex:1}
@@ -161,7 +176,7 @@ var KEY='suivi-medias-v1',S={upd:0,sm:false,sel:{},items:[],cat:'anime',open:nul
 S.sorts={};try{S.sorts=JSON.parse(localStorage.getItem('suivi-sorts'))||{}}catch(e){}
 function saveSorts(){try{localStorage.setItem('suivi-sorts',JSON.stringify(S.sorts))}catch(e){}}
 try{var raw=localStorage.getItem(KEY);if(raw){var d=JSON.parse(raw);if(d&&d.items){S.items=d.items;S.upd=d.upd||0}}}catch(e){}
-S.view='suivi';S.dq='';S.dsr=null;S.dc={};S.dcards=[];
+S.view='suivi';S.dq='';S.dsr=null;S.dc={};S.dcards=[];S.gl={};S.dg={};
 function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify({items:S.items,upd:S.upd}))}catch(e){}}
 function save(){S.upd=Date.now();saveLocal();syncSchedule()}
 var SY={st:'off',user:null,db:null,auth:null,unsub:null,t:null,dirty:false,ready:false,first:true};
@@ -290,7 +305,7 @@ function lst(){
   h+='<div class="list">';shown.forEach(function(it,ix){
     if(nf&&ix===nf)h+='<div class="sep"></div>';
     var ep=it.cat==='anime'||it.cat==='manga'||it.cat==='series';
-    h+='<div class="it'+(S.sm&&S.sel[it.id]?' sel':'')+'" '+(S.sm?'data-sel':'data-open')+'="'+it.id+'">'+(S.sm?'':'<button class="fv'+(it.fav?' on':'')+'" data-fav="'+it.id+'" aria-pressed="'+!!it.fav+'" aria-label="'+(it.fav?'Retirer des favoris':'Mettre en favori')+'" title="Favori">'+ico('star',20).replace('fill="none"',it.fav?'fill="currentColor"':'fill="none"')+'</button><span class="qs"><button class="qb dn'+(it.status==='done'?' on':'')+'" data-qd="'+it.id+'" title="Marquer comme fini" aria-label="Marquer comme fini">Fini</button><button class="qb td'+(it.status==='todo'?' on':'')+'" data-qt="'+it.id+'" title="Marquer comme pas commencé" aria-label="Marquer comme pas commencé">Pas c.</button></span>')+'<div class="ini'+(it.img?' im':'')+'">'+esc((it.title.trim()[0]||'?').toUpperCase())+(it.img?'<img src="'+esc(it.img)+'" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">':'')+'</div><div class="mid"><div class="nm">'+esc(it.title)+'</div><div class="meta"><span class="st '+it.status+'">'+ST[it.status]+'</span> &nbsp;'+label(it)+'</div>'+dline(it)+'<div class="bar"><i style="width:'+Math.round(prog(it)*100)+'%"></i></div></div>'+(S.sm?'<span class="ck">'+(S.sel[it.id]?'✓':'')+'</span>':'<button class="cp" data-cp="'+it.id+'" aria-label="Copier le titre" title="Copier le titre">'+ico('copy',18)+'</button>'+(ep&&it.status!=='done'?'<button class="plus" data-plus="'+it.id+'" aria-label="Marquer le prochain épisode vu">+1</button>':'<span class="chev">›</span>'))+'</div>'});
+    h+='<div class="it'+(S.sm&&S.sel[it.id]?' sel':'')+'" '+(S.sm?'data-sel':'data-open')+'="'+it.id+'">'+(S.sm?'':'<div class="lf"><button class="fv'+(it.fav?' on':'')+'" data-fav="'+it.id+'" aria-pressed="'+!!it.fav+'" aria-label="'+(it.fav?'Retirer des favoris':'Mettre en favori')+'" title="Favori">'+ico('star',20).replace('fill="none"',it.fav?'fill="currentColor"':'fill="none"')+'</button><span class="qs"><button class="qb dn'+(it.status==='done'?' on':'')+'" data-qd="'+it.id+'" title="Marquer comme fini" aria-label="Marquer comme fini">Fini</button><button class="qb td'+(it.status==='todo'?' on':'')+'" data-qt="'+it.id+'" title="Marquer comme pas commencé" aria-label="Marquer comme pas commencé">Pas c.</button></span></div>')+'<div class="ini'+(it.img?' im':'')+'">'+esc((it.title.trim()[0]||'?').toUpperCase())+(it.img?'<img src="'+esc(it.img)+'" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">':'')+'</div><div class="mid"><div class="nm">'+esc(it.title)+'</div><div class="meta"><span class="st '+it.status+'">'+ST[it.status]+'</span> &nbsp;'+label(it)+'</div>'+dline(it)+'<div class="bar"><i style="width:'+Math.round(prog(it)*100)+'%"></i></div></div>'+(S.sm?'<span class="ck">'+(S.sel[it.id]?'✓':'')+'</span>':'<div class="rt">'+(ep&&it.status!=='done'?'<button class="plus" data-plus="'+it.id+'" aria-label="Marquer le prochain épisode vu">+1</button>':'<span class="chev">›</span>')+'<button class="cp" data-cp="'+it.id+'" aria-label="Copier le titre" title="Copier le titre">'+ico('copy',18)+'</button></div>')+'</div>'});
   h+='</div>';return h}
 function home(){
   var c=C[S.cat],all=S.items.filter(function(i){return i.cat===S.cat}),
@@ -304,11 +319,11 @@ function home(){
   h+='<p class="sum">'+doing+' en cours sur '+all.length+(all.length>1?' titres':' titre')+(all.length&&!S.sm?'<button class="lnk" data-act="selmode">Sélectionner</button>':'')+'</p><div class="flt">';
   [['all','Tous'],['doing','En cours'],['todo','Pas commencé'],['done','Fini']].forEach(function(p){h+='<button class="'+(S.filter===p[0]?'on':'')+'" data-f="'+p[0]+'">'+p[1]+'</button>'});
   h+='</div>';
-  h+='<div class="tools"><input id="q" class="srch" type="search" placeholder="Rechercher dans mes titres" value="'+esc(S.q)+'"><select id="srt" aria-label="Trier">';
+  h+='<div class="tools"><input id="q" class="srch" type="search" placeholder="Rechercher…" value="'+esc(S.q)+'"><select id="srt" aria-label="Trier">';
   SORTS.forEach(function(o){h+='<option value="'+o[0]+'"'+((S.sorts[S.cat]||'new')===o[0]?' selected':'')+'>'+o[1]+'</option>'});
   h+='</select></div>';
   h+='<div id="lst">'+lst()+'</div>';
-  h+='<div class="links"><button class="lnk" data-act="bulk">Ajouter une liste</button>'+(function(){var o='',nm=all.filter(function(i){return !i.total}).length,nu=all.filter(unrec).length;if((S.cat==='anime'||S.cat==='manga')&&nm)o+='<button class="lnk" id="fmb" data-act="fillmiss">Chercher les totaux manquants ('+nm+')</button>';if(nu)o+='<button class="lnk" data-act="unrec">Titres non reconnus (.txt) ('+nu+')</button>';return o})()+'<button class="lnk" data-act="exp">Exporter mes données</button><button class="lnk" data-act="imp">Importer</button><button class="lnk" data-act="key" data-k="tmdb">Clé TMDB</button><button class="lnk" data-act="key" data-k="rawg">Clé RAWG</button><button class="lnk" id="syb" data-act="sync">'+syLabel()+'</button><input type="file" id="fi" accept=".json" hidden></div></div>';
+  h+='<div class="links"><button class="lnk" data-act="bulk">Ajouter une liste</button>'+(function(){var o='',nm=all.filter(function(i){return !i.total}).length,nu=all.filter(unrec).length;if((S.cat==='anime'||S.cat==='manga')&&nm)o+='<button class="lnk" id="fmb" data-act="fillmiss">Chercher les totaux manquants ('+nm+')</button>';if(nu)o+='<button class="lnk" data-act="unrec">Titres non reconnus (.txt) ('+nu+')</button>';return o})()+'<button class="lnk" data-act="exp">Exporter mes données</button><button class="lnk" data-act="imp">Importer</button><button class="lnk" data-act="key" data-k="tmdb">Clé TMDB</button><button class="lnk" data-act="key" data-k="rawg">Clé RAWG</button><button class="lnk" id="syb" data-act="sync">'+syLabel()+'</button><button class="lnk" id="inb" data-act="inst"'+(S.ip?'':' hidden')+'>Installer l’appli</button><input type="file" id="fi" accept=".json" hidden></div></div>';
   }
   if(S.sm)h+='<div class="selbar"><button class="btn" data-act="selcancel">Annuler</button><span class="n" id="sbn">'+selTxt()+'</span><button class="btn" data-act="selall">Tout</button><button class="btn dng" id="sbd" data-act="seldel"'+(selShown().length?'':' disabled')+'>'+(selShown().length?'Supprimer ('+selShown().length+')':'Supprimer')+'</button></div>';
   else if(!dv)h+='<button class="fab" data-act="new" aria-label="Ajouter un titre">+</button>';
@@ -453,13 +468,24 @@ function startBulk(){
     var bd=document.getElementById('bdlg');if(bd&&bd.open)bd.close();render();
     toast(add.length+' titre'+(add.length>1?'s':'')+' ajouté'+(add.length>1?'s':'')+' · '+found+' avec couverture/durée'+(add.length-found>0?' · '+(add.length-found)+' laissé'+(add.length-found>1?'s':'')+' tel quel'+(add.length-found>1?'s':'')+' (non trouvé'+(add.length-found>1?'s':'')+')':'')+(sk?' · '+sk+' doublon'+(sk>1?'s':'')+' ignoré'+(sk>1?'s':''):''))})}
 document.addEventListener('cancel',function(e){if(e.target.id==='bdlg'&&S.bulkRun)e.preventDefault()},true);
+var GFR={'Action':'Action','Adventure':'Aventure','Comedy':'Comédie','Drama':'Drame','Ecchi':'Ecchi','Fantasy':'Fantastique','Horror':'Horreur','Mahou Shoujo':'Magical girl','Mecha':'Mecha','Music':'Musique','Mystery':'Mystère','Psychological':'Psychologique','Romance':'Romance','Sci-Fi':'Science-fiction','Slice of Life':'Tranche de vie','Sports':'Sport','Supernatural':'Surnaturel','Thriller':'Thriller'};
+var GFR2={'Action':'Action','Indie':'Indépendant','Adventure':'Aventure','RPG':'RPG','Strategy':'Stratégie','Shooter':'Tir','Casual':'Casual','Simulation':'Simulation','Puzzle':'Puzzle','Arcade':'Arcade','Platformer':'Plateforme','Racing':'Course','Massively Multiplayer':'MMO','Sports':'Sport','Fighting':'Combat','Family':'Famille','Board Games':'Jeux de société','Educational':'Éducatif','Card':'Cartes'};
+function isoD(n){var d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function glFetch(cat){
+  if(cat==='anime'||cat==='manga')return ft('https://graphql.anilist.co',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({query:'{GenreCollection}'})},8000).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return j.data.GenreCollection.filter(function(n){return n!=='Hentai'}).map(function(n){return{v:n,label:GFR[n]||n}})}).catch(function(){return Object.keys(GFR).map(function(n){return{v:n,label:GFR[n]}})});
+  if(cat==='series'||cat==='films')return tm('/genre/'+(cat==='series'?'tv':'movie')+'/list').then(function(j){return j.genres.map(function(g){return{v:g.id,label:g.name}})});
+  if(cat==='jeux'){var k=getKey('rawg');if(!k)return Promise.reject();return ft('https://api.rawg.io/api/genres?page_size=40&key='+encodeURIComponent(k),null,8000).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){return j.results.map(function(g){return{v:g.slug,label:GFR2[g.name]||g.name}})})}
+  return Promise.reject()}
+function glLoad(cat){if(S.gl[cat])return;var g=S.gl[cat]={list:[]};glFetch(cat).then(function(l){g.list=l}).catch(function(){}).then(function(){if(S.cat===cat)refreshDisc()})}
+function gSel(cat){var l=S.gl[cat],i=S.dg[cat];return l&&i>=0&&l.list[i]?l.list[i]:null}
+function dkey(cat,id){var g=gSel(cat);return cat+':'+id+':'+(g?g.v:'')}
 var dtm,dseq=0;
 function vsw(){if(S.cat==='livres')return'';return '<div class="vsw"><button class="'+(S.view!=='disc'?'on':'')+'" data-view="suivi">Mon suivi</button><button class="'+(S.view==='disc'?'on':'')+'" data-view="disc">Découvrir</button></div>'}
 function curSeason(){var d=new Date(),m=d.getMonth(),k=['WINTER','WINTER','WINTER','SPRING','SPRING','SPRING','SUMMER','SUMMER','SUMMER','FALL','FALL','FALL'][m],l={WINTER:'d’hiver',SPRING:'de printemps',SUMMER:'d’été',FALL:'d’automne'}[k];return{k:k,y:d.getFullYear(),l:l}}
 function isoPlus(y){var d=new Date();d.setFullYear(d.getFullYear()+y);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function aniDisc(type,opt,page){
-  var v={p:page,t:type};if(opt.status)v.st=opt.status;if(opt.season){v.se=opt.season;v.sy=opt.year}if(type==='MANGA')v.f=['MANGA','ONE_SHOT'];
-  return ft('https://graphql.anilist.co',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({query:'query($p:Int,$t:MediaType,$st:MediaStatus,$se:MediaSeason,$sy:Int,$f:[MediaFormat]){Page(page:$p,perPage:24){pageInfo{hasNextPage}media(type:$t,status:$st,season:$se,seasonYear:$sy,format_in:$f,sort:POPULARITY_DESC,isAdult:false){title{romaji english}episodes chapters startDate{year}coverImage{large}nextAiringEpisode{episode}averageScore}}}',variables:v})},9000).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){var pg=j.data.Page;
+  var v={p:page,t:type};if(opt.status)v.st=opt.status;if(opt.season){v.se=opt.season;v.sy=opt.year}if(type==='MANGA')v.f=['MANGA','ONE_SHOT'];if(opt.genre)v.g=opt.genre;
+  return ft('https://graphql.anilist.co',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({query:'query($p:Int,$t:MediaType,$st:MediaStatus,$se:MediaSeason,$sy:Int,$f:[MediaFormat],$g:String){Page(page:$p,perPage:24){pageInfo{hasNextPage}media(genre:$g,type:$t,status:$st,season:$se,seasonYear:$sy,format_in:$f,sort:POPULARITY_DESC,isAdult:false){title{romaji english}episodes chapters startDate{year}coverImage{large}nextAiringEpisode{episode}averageScore}}}',variables:v})},9000).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){var pg=j.data.Page;
     return{more:!!pg.pageInfo.hasNextPage,list:pg.media.map(function(m){var tot=type==='ANIME'?(m.episodes||(m.nextAiringEpisode?m.nextAiringEpisode.episode-1:0)):(m.chapters||0),ti=m.title.romaji||m.title.english;
       return{title:ti,alt:m.title.english&&m.title.english!==ti?m.title.english:'',year:m.startDate&&m.startDate.year||'',img:m.coverImage&&m.coverImage.large||'',total:tot,score:m.averageScore?(m.averageScore/10).toFixed(1):''}})}})}
 function tmList(kind,path,page,extra){
@@ -473,27 +499,27 @@ function rawgList(page,params){
     return{more:!!j.next,list:j.results.map(function(g){return{title:g.name,alt:'',year:(g.released||'').slice(0,4),date:g.released?fd(g.released):'',img:g.background_image?g.background_image.replace('/media/','/media/resize/420/-/'):'',total:g.playtime||0,rid:g.id,score:g.rating?(g.rating*2).toFixed(1):''}})}})}
 var DSEC={
 anime:function(){var sn=curSeason();return[
-  {id:'se',t:'Saison '+sn.l+' '+sn.y,f:function(p){return aniDisc('ANIME',{season:sn.k,year:sn.y},p)}},
-  {id:'air',t:'Actuellement en diffusion',f:function(p){return aniDisc('ANIME',{status:'RELEASING'},p)}},
-  {id:'pop',t:'Les plus populaires',f:function(p){return aniDisc('ANIME',{},p)}}]},
-manga:function(){return[{id:'pop',t:'Les mangas les plus populaires',f:function(p){return aniDisc('MANGA',{},p)}}]},
+  {id:'se',t:'Saison '+sn.l+' '+sn.y,f:function(p,g){return aniDisc('ANIME',{season:sn.k,year:sn.y,genre:g},p)}},
+  {id:'air',t:'Actuellement en diffusion',f:function(p,g){return aniDisc('ANIME',{status:'RELEASING',genre:g},p)}},
+  {id:'pop',t:'Les plus populaires',f:function(p,g){return aniDisc('ANIME',{genre:g},p)}}]},
+manga:function(){return[{id:'pop',t:'Les mangas les plus populaires',f:function(p,g){return aniDisc('MANGA',{genre:g},p)}}]},
 series:function(){return[
-  {id:'air',t:'Actuellement en diffusion',f:function(p){return tmList('tv','/tv/on_the_air',p)}},
-  {id:'pop',t:'Les plus populaires',f:function(p){return tmList('tv','/tv/popular',p)}}]},
+  {id:'air',t:'Actuellement en diffusion',f:function(p,g){return g?tmList('tv','/discover/tv',p,'&sort_by=popularity.desc&with_genres='+g+'&air_date.gte='+isoD(-7)+'&air_date.lte='+isoD(7)):tmList('tv','/tv/on_the_air',p)}},
+  {id:'pop',t:'Les plus populaires',f:function(p,g){return g?tmList('tv','/discover/tv',p,'&sort_by=popularity.desc&with_genres='+g):tmList('tv','/tv/popular',p)}}]},
 films:function(){return[
-  {id:'now',t:'Actuellement au cinéma',f:function(p){return tmList('movie','/movie/now_playing',p,'&region=FR')}},
-  {id:'up',t:'Prochainement',f:function(p){return tmList('movie','/movie/upcoming',p,'&region=FR')}},
-  {id:'pop',t:'Les plus populaires',f:function(p){return tmList('movie','/movie/popular',p)}}]},
+  {id:'now',t:'Actuellement au cinéma',f:function(p,g){return g?tmList('movie','/discover/movie',p,'&sort_by=popularity.desc&with_genres='+g+'&primary_release_date.gte='+isoD(-45)+'&primary_release_date.lte='+isoD(0)):tmList('movie','/movie/now_playing',p,'&region=FR')}},
+  {id:'up',t:'Prochainement',f:function(p,g){return g?tmList('movie','/discover/movie',p,'&sort_by=popularity.desc&with_genres='+g+'&primary_release_date.gte='+isoD(1)+'&primary_release_date.lte='+isoD(365)):tmList('movie','/movie/upcoming',p,'&region=FR')}},
+  {id:'pop',t:'Les plus populaires',f:function(p,g){return g?tmList('movie','/discover/movie',p,'&sort_by=popularity.desc&with_genres='+g):tmList('movie','/movie/popular',p)}}]},
 jeux:function(){return[
-  {id:'up',t:'Prochaines sorties',f:function(p){return rawgList(p,'&ordering=-added&dates='+today()+','+isoPlus(1))}},
-  {id:'pop',t:'Les plus populaires',f:function(p){return rawgList(p,'&ordering=-added')}}]},
+  {id:'up',t:'Prochaines sorties',f:function(p,g){return rawgList(p,'&ordering=-added&dates='+today()+','+isoPlus(1)+(g?'&genres='+g:''))}},
+  {id:'pop',t:'Les plus populaires',f:function(p,g){return rawgList(p,'&ordering=-added'+(g?'&genres='+g:''))}}]},
 livres:function(){return[]}};
 function secLoad(cat,sec){
-  var k=cat+':'+sec.id,c=S.dc[k]||(S.dc[k]={list:[],page:0,more:true,state:'load'});if(c.busy)return;
-  c.busy=true;sec.f(c.page+1).then(function(r){c.page++;var seen={};c.list.forEach(function(x){seen[nz(x.title)]=1});c.list=c.list.concat(r.list.filter(function(x){var n=nz(x.title);if(!n||seen[n])return false;seen[n]=1;return true}));c.more=r.more;c.state='ok'}).catch(function(){c.state=c.list.length?'ok':'err'}).then(function(){c.busy=false;if(S.cat===cat)refreshDisc()});
+  var gs=gSel(cat),k=dkey(cat,sec.id),c=S.dc[k]||(S.dc[k]={list:[],page:0,more:true,state:'load'});if(c.busy)return;
+  c.busy=true;sec.f(c.page+1,gs?gs.v:'').then(function(r){c.page++;var seen={};c.list.forEach(function(x){seen[nz(x.title)]=1});c.list=c.list.concat(r.list.filter(function(x){var n=nz(x.title);if(!n||seen[n])return false;seen[n]=1;return true}));c.more=r.more;c.state='ok'}).catch(function(){c.state=c.list.length?'ok':'err'}).then(function(){c.busy=false;if(S.cat===cat&&dkey(cat,sec.id)===k)refreshDisc()});
   if(S.cat===cat)refreshDisc()}
-function discLoad(){var cat=S.cat;DSEC[cat]().forEach(function(sec){if(!S.dc[cat+':'+sec.id])secLoad(cat,sec)})}
-function refreshDisc(){var e=document.getElementById('disc');if(e)e.innerHTML=discHTML()}
+function discLoad(){var cat=S.cat;glLoad(cat);DSEC[cat]().forEach(function(sec){if(!S.dc[dkey(cat,sec.id)])secLoad(cat,sec)})}
+function refreshDisc(){var e=document.getElementById('disc');if(!e)return;var g=e.querySelector('.gch'),sl=g?g.scrollLeft:0;e.innerHTML=discHTML();var g2=e.querySelector('.gch');if(g2)g2.scrollLeft=sl}
 function discPage(){
   var ph={anime:'un anime',manga:'un manga',series:'une série',films:'un film',jeux:'un jeu'}[S.cat]||'un titre';
   return '<div class="tools"><input id="dq" class="srch" type="search" placeholder="Rechercher '+ph+' à ajouter" value="'+esc(S.dq)+'"></div><div id="disc">'+discHTML()+'</div>'}
@@ -506,8 +532,9 @@ function discHTML(){
     if(r.state==='load')return '<div class="sgm">Recherche…</div>';
     if(r.state==='err')return '<div class="sgm">Recherche indisponible'+(r.nokey?' : clé manquante.':'.')+'</div>';
     return '<h2 class="dsh">Résultats pour « '+esc(r.q)+' »</h2>'+(r.list.length?grid(r.list):'<div class="sgm">Aucun résultat.</div>')}
-  var h='';
-  DSEC[cat]().forEach(function(sec){var c=S.dc[cat+':'+sec.id];h+='<h2 class="dsh">'+esc(sec.t)+'</h2>';
+  var h='',gl=S.gl[cat],gs=gSel(cat);
+  if(gl&&gl.list.length){h+='<div class="chs gch"><button class="ch'+(gs?'':' on')+'" data-g="-1">Tous</button>';gl.list.forEach(function(g,i){h+='<button class="ch'+(gs&&gs.v===g.v?' on':'')+'" data-g="'+i+'">'+esc(g.label)+'</button>'});h+='</div>'}
+  DSEC[cat]().forEach(function(sec){var c=S.dc[dkey(cat,sec.id)];h+='<h2 class="dsh">'+esc(sec.t)+(gs?' · '+esc(gs.label):'')+'</h2>';
     if(!c||(c.state==='load'&&!c.list.length))h+='<div class="sgm">Chargement…</div>';
     else if(c.state==='err')h+='<div class="sgm">Indisponible pour le moment. <button class="lnk" data-dretry="'+sec.id+'">Réessayer</button></div>';
     else{h+=c.list.length?grid(c.list):'<div class="sgm">Rien à afficher.</div>';if(c.more)h+='<button class="btn dmore" data-dmore="'+sec.id+'"'+(c.busy?' disabled':'')+'>'+(c.busy?'Chargement…':'Voir plus')+'</button>'}});
@@ -540,13 +567,14 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&(e.target.id
 document.addEventListener('close',function(e){if(e.target.id==='det'&&S.open){S.open=null;S.bk=false;render()}},true);
 document.addEventListener('click',function(e){
   if(e.target.id==='det'){S.open=null;S.bk=false;return render()}
-  var t=e.target.closest('[data-cat],[data-f],[data-open],[data-act],[data-view],[data-da],[data-dmore],[data-dretry],[data-qd],[data-qt],[data-fav],[data-cp],[data-sel],[data-n],[data-plus],[data-st],[data-sg],[data-ssn]');if(!t)return;
+  var t=e.target.closest('[data-cat],[data-f],[data-open],[data-act],[data-g],[data-view],[data-da],[data-dmore],[data-dretry],[data-qd],[data-qt],[data-fav],[data-cp],[data-sel],[data-n],[data-plus],[data-st],[data-sg],[data-ssn]');if(!t)return;
   var it=cur(),ds=t.dataset;
   if(ds.sel){if(S.sel[ds.sel])delete S.sel[ds.sel];else S.sel[ds.sel]=1;var y3=window.scrollY;render();window.scrollTo(0,y3);return}
   if(ds.view){S.view=ds.view;window.scrollTo(0,0);return render()}
   if(ds.da!==undefined){var dp0=S.dcards[+ds.da];if(dp0){discAdd(dp0);refreshDisc();toast('« '+dp0.title+' » ajouté à ton suivi')}return}
   if(ds.dmore){var sc=DSEC[S.cat]().filter(function(x){return x.id===ds.dmore})[0];if(sc)secLoad(S.cat,sc);return}
-  if(ds.dretry){delete S.dc[S.cat+':'+ds.dretry];discLoad();refreshDisc();return}
+  if(ds.dretry){delete S.dc[dkey(S.cat,ds.dretry)];discLoad();refreshDisc();return}
+  if(ds.g!==undefined){S.dg[S.cat]=+ds.g;discLoad();refreshDisc();return}
   if(ds.qd||ds.qt){var qi=S.items.find(function(x){return x.id===(ds.qd||ds.qt)});if(qi&&qi.status!==(ds.qd?'done':'todo')){var y6=window.scrollY;setStatus(qi,ds.qd?'done':'todo');window.scrollTo(0,y6)}return}
   if(ds.fav){var fi=S.items.find(function(x){return x.id===ds.fav});if(fi){fi.fav=!fi.fav;save();var y5=window.scrollY;render();window.scrollTo(0,y5)}return}
   if(ds.cp){var cq=S.items.find(function(x){return x.id===ds.cp});if(cq)copyTxt(cq.title);return}
@@ -561,6 +589,7 @@ document.addEventListener('click',function(e){
     if(S.bk){var cb=cvOf(it),n3=+ds.n;cb.done=[];for(var q3=1;q3<=n3;q3++)cb.done.push(q3);if(it.cat==='series')it.ss.forEach(function(x,k){if(k<S.sn){x.done=[];for(var e3=1;e3<=x.total;e3++)x.done.push(e3)}else if(k>S.sn)x.done=[]});auto(it);save();S.bk=false;S.open=null;return render()}var cv=cvOf(it),n2=+ds.n,i=cv.done.indexOf(n2);if(i<0)cv.done.push(n2);else cv.done.splice(i,1);auto(it);save();var y2=window.scrollY;render();window.scrollTo(0,y2);return}
   var a=ds.act;
   if(a==='new'){S.pick=null;S.res=[];var dl=document.getElementById('dlg');dl.showModal();document.getElementById('nt').focus();return}
+  if(a==='inst'){if(S.ip){S.ip.prompt();S.ip=null;t.hidden=true}return}
   if(a==='sync')return syncClick();
   if(a==='fillmiss')return fillMissing();
   if(a==='unrec'){var ul=S.items.filter(function(i){return i.cat===S.cat&&unrec(i)}).map(function(i){return i.title});if(!ul.length)return;var ub=new Blob([ul.join('\n')+'\n'],{type:'text/plain;charset=utf-8'}),ua=document.createElement('a');ua.href=URL.createObjectURL(ub);ua.download='non-reconnus-'+S.cat+'.txt';ua.click();return}
@@ -594,6 +623,9 @@ document.addEventListener('change',function(e){
   if(e.target.id==='fi'){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(d&&Array.isArray(d.items)&&confirm('Remplacer les données actuelles ?')){S.items=d.items;mig();save();render()}}catch(x){alert('Fichier invalide : choisis un export de cette appli.')}};r.readAsText(f);return}
   if(it&&e.target.id==='tot'){var v=e.target.value;if(it.cat==='jeux'){it.hrs=Math.max(0,parseInt(v)||0);save();return render()}var tg=cvOf(it);tg.total=it.cat==='films'?parseHM(v):Math.max(0,parseInt(v)||0);if(it.cat==='series')syncT(it);if(it.status==='done')fill(it);else if(it.status==='doing')auto(it);save();render()}});
 mig();render();syncInit();
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(function(){});
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();S.ip=e;var b=document.getElementById('inb');if(b)b.hidden=false});
+window.addEventListener('appinstalled',function(){S.ip=null;var b=document.getElementById('inb');if(b)b.hidden=true});
 </script>
 </body>
 </html>
