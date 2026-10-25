@@ -105,6 +105,7 @@ textarea,select{font:inherit;color:var(--ink);background:var(--bg);border:1.5px 
 textarea{resize:vertical;line-height:1.5}
 textarea:focus,select:focus{outline:none;border-color:var(--acc)}
 .cp{flex:none;width:34px;height:28px;border-radius:10px;border:0;background:none;color:var(--mut);display:grid;place-items:center;padding:0}
+.rt a.cp{text-decoration:none}
 .cp:hover{color:var(--ink);background:var(--ln)}
 .it.sel{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,var(--sf))}
 .ck{flex:none;width:28px;height:28px;border-radius:9px;border:2px solid var(--ln);display:grid;place-items:center;color:#fff;font-weight:700;font-size:16px;margin:0 4px}
@@ -158,6 +159,7 @@ series:'<rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8"/>',
 films:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/>',
 jeux:'<rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5M16 11h.01M18.5 14h.01"/>',
 star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
 copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
 livres:'<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>'};
 var C={
@@ -297,6 +299,7 @@ function selShown(){return shownList().filter(function(i){return S.sel[i.id]})}
 function selTxt(){var n=selShown().length;return n?n+' sélectionné'+(n>1?'s':''):'Aucun titre sélectionné'}
 function refreshSel(){var b=document.getElementById('sbn');if(b)b.textContent=selTxt();var d=document.getElementById('sbd');if(d){var n=selShown().length;d.disabled=!n;d.textContent=n?'Supprimer ('+n+')':'Supprimer'}}
 function selMode(on){S.sm=on;S.sel={}}
+var EXT={anime:['IMDb',function(it){return 'https://www.imdb.com/find/?s=tt&q='+UA(it.alt||it.title)}],series:['IMDb',function(it){return 'https://www.imdb.com/find/?s=tt&q='+UA(it.title)}],films:['IMDb',function(it){return 'https://www.imdb.com/find/?s=tt&q='+UA(it.title)}],manga:['MyAnimeList',function(it){return 'https://myanimelist.net/manga.php?cat=manga&q='+UA(it.title)}],livres:['Goodreads',function(it){return 'https://www.goodreads.com/search?q='+UA(it.title)}],jeux:['RAWG',function(it){return 'https://rawg.io/search?query='+UA(it.title)}]};
 function lst(){
   var c=C[S.cat],all=S.items.filter(function(i){return i.cat===S.cat}),ql=S.q.toLowerCase(),
   shown=all.filter(function(i){return(S.filter==='all'||i.status===S.filter)&&(!ql||i.title.toLowerCase().indexOf(ql)>=0)});
@@ -305,7 +308,7 @@ function lst(){
   h+='<div class="list">';shown.forEach(function(it,ix){
     if(nf&&ix===nf)h+='<div class="sep"></div>';
     var ep=it.cat==='anime'||it.cat==='manga'||it.cat==='series';
-    h+='<div class="it'+(S.sm&&S.sel[it.id]?' sel':'')+'" '+(S.sm?'data-sel':'data-open')+'="'+it.id+'">'+(S.sm?'':'<div class="lf"><button class="fv'+(it.fav?' on':'')+'" data-fav="'+it.id+'" aria-pressed="'+!!it.fav+'" aria-label="'+(it.fav?'Retirer des favoris':'Mettre en favori')+'" title="Favori">'+ico('star',20).replace('fill="none"',it.fav?'fill="currentColor"':'fill="none"')+'</button><span class="qs"><button class="qb dn'+(it.status==='done'?' on':'')+'" data-qd="'+it.id+'" title="Marquer comme fini" aria-label="Marquer comme fini">Fini</button><button class="qb td'+(it.status==='todo'?' on':'')+'" data-qt="'+it.id+'" title="Marquer comme pas commencé" aria-label="Marquer comme pas commencé">Pas c.</button></span></div>')+'<div class="ini'+(it.img?' im':'')+'">'+esc((it.title.trim()[0]||'?').toUpperCase())+(it.img?'<img src="'+esc(it.img)+'" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">':'')+'</div><div class="mid"><div class="nm">'+esc(it.title)+'</div><div class="meta"><span class="st '+it.status+'">'+ST[it.status]+'</span> &nbsp;'+label(it)+'</div>'+dline(it)+'<div class="bar"><i style="width:'+Math.round(prog(it)*100)+'%"></i></div></div>'+(S.sm?'<span class="ck">'+(S.sel[it.id]?'✓':'')+'</span>':'<div class="rt">'+(ep&&it.status!=='done'?'<button class="plus" data-plus="'+it.id+'" aria-label="Marquer le prochain épisode vu">+1</button>':'<span class="chev">›</span>')+'<button class="cp" data-cp="'+it.id+'" aria-label="Copier le titre" title="Copier le titre">'+ico('copy',18)+'</button></div>')+'</div>'});
+    h+='<div class="it'+(S.sm&&S.sel[it.id]?' sel':'')+'" '+(S.sm?'data-sel':'data-open')+'="'+it.id+'">'+(S.sm?'':'<div class="lf"><button class="fv'+(it.fav?' on':'')+'" data-fav="'+it.id+'" aria-pressed="'+!!it.fav+'" aria-label="'+(it.fav?'Retirer des favoris':'Mettre en favori')+'" title="Favori">'+ico('star',20).replace('fill="none"',it.fav?'fill="currentColor"':'fill="none"')+'</button><span class="qs"><button class="qb dn'+(it.status==='done'?' on':'')+'" data-qd="'+it.id+'" title="Marquer comme fini" aria-label="Marquer comme fini">Fini</button><button class="qb td'+(it.status==='todo'?' on':'')+'" data-qt="'+it.id+'" title="Marquer comme pas commencé" aria-label="Marquer comme pas commencé">Pas c.</button></span></div>')+'<div class="ini'+(it.img?' im':'')+'">'+esc((it.title.trim()[0]||'?').toUpperCase())+(it.img?'<img src="'+esc(it.img)+'" alt="" referrerpolicy="no-referrer" loading="lazy" onerror="this.remove()">':'')+'</div><div class="mid"><div class="nm">'+esc(it.title)+'</div><div class="meta"><span class="st '+it.status+'">'+ST[it.status]+'</span> &nbsp;'+label(it)+'</div>'+dline(it)+'<div class="bar"><i style="width:'+Math.round(prog(it)*100)+'%"></i></div></div>'+(S.sm?'<span class="ck">'+(S.sel[it.id]?'✓':'')+'</span>':'<div class="rt">'+(ep&&it.status!=='done'?'<button class="plus" data-plus="'+it.id+'" aria-label="Marquer le prochain épisode vu">+1</button>':'<span class="chev">›</span>')+'<button class="cp" data-cp="'+it.id+'" aria-label="Copier le titre" title="Copier le titre">'+ico('copy',18)+'</button><a class="cp" data-ext="1" href="'+esc(EXT[it.cat][1](it))+'" target="_blank" rel="noopener noreferrer" aria-label="Voir sur '+EXT[it.cat][0]+'" title="Voir sur '+EXT[it.cat][0]+'">'+ico('info',18)+'</a></div>')+'</div>'});
   h+='</div>';return h}
 function home(){
   var c=C[S.cat],all=S.items.filter(function(i){return i.cat===S.cat}),
@@ -567,9 +570,10 @@ document.addEventListener('keydown',function(e){if(e.key==='Enter'&&(e.target.id
 document.addEventListener('close',function(e){if(e.target.id==='det'&&S.open){S.open=null;S.bk=false;render()}},true);
 document.addEventListener('click',function(e){
   if(e.target.id==='det'){S.open=null;S.bk=false;return render()}
-  var t=e.target.closest('[data-cat],[data-f],[data-open],[data-act],[data-g],[data-view],[data-da],[data-dmore],[data-dretry],[data-qd],[data-qt],[data-fav],[data-cp],[data-sel],[data-n],[data-plus],[data-st],[data-sg],[data-ssn]');if(!t)return;
+  var t=e.target.closest('[data-cat],[data-f],[data-open],[data-act],[data-ext],[data-g],[data-view],[data-da],[data-dmore],[data-dretry],[data-qd],[data-qt],[data-fav],[data-cp],[data-sel],[data-n],[data-plus],[data-st],[data-sg],[data-ssn]');if(!t)return;
   var it=cur(),ds=t.dataset;
   if(ds.sel){if(S.sel[ds.sel])delete S.sel[ds.sel];else S.sel[ds.sel]=1;var y3=window.scrollY;render();window.scrollTo(0,y3);return}
+  if(ds.ext)return;
   if(ds.view){S.view=ds.view;window.scrollTo(0,0);return render()}
   if(ds.da!==undefined){var dp0=S.dcards[+ds.da];if(dp0){discAdd(dp0);refreshDisc();toast('« '+dp0.title+' » ajouté à ton suivi')}return}
   if(ds.dmore){var sc=DSEC[S.cat]().filter(function(x){return x.id===ds.dmore})[0];if(sc)secLoad(S.cat,sc);return}
